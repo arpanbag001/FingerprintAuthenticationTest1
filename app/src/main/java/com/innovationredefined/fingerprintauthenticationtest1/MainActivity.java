@@ -22,6 +22,22 @@ public class MainActivity extends AppCompatActivity {
 
         Reprint.initialize(this);
 
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Reprint.cancelAuthentication();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        startListeningForFingerprint();
+    }
+
+    private void startListeningForFingerprint() {
         if (Reprint.isHardwarePresent()) {
             if (Reprint.hasFingerprintRegistered()) {
                 textView.setText("Authenticating");
@@ -45,6 +61,5 @@ public class MainActivity extends AppCompatActivity {
             textView.setText("Fingerprint not supported");
             Toast.makeText(getApplicationContext(), "Fingerprint not supported", Toast.LENGTH_LONG).show();
         }
-
     }
 }
