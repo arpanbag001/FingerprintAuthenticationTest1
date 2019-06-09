@@ -2,22 +2,26 @@ package com.innovationredefined.fingerprintauthenticationtest1;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.ajalt.reprint.core.AuthenticationFailureReason;
 import com.github.ajalt.reprint.core.AuthenticationListener;
 import com.github.ajalt.reprint.core.Reprint;
+import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity {
     TextView textView;
+    View rootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        rootView = findViewById(R.id.rootView);
         textView = findViewById(R.id.text);
 
         Reprint.initialize(this);
@@ -40,26 +44,34 @@ public class MainActivity extends AppCompatActivity {
     private void startListeningForFingerprint() {
         if (Reprint.isHardwarePresent()) {
             if (Reprint.hasFingerprintRegistered()) {
-                textView.setText("Authenticating");
+                textView.setText("Authenticating...");
+                Snackbar.make(rootView, "Authenticating...", Snackbar.LENGTH_SHORT).show();
                 Reprint.authenticate(new AuthenticationListener() {
                     @Override
                     public void onSuccess(int moduleTag) {
-                        textView.setText("Authenticated");
-                        Toast.makeText(getApplicationContext(), "Authenticated", Toast.LENGTH_SHORT).show();
+                        textView.setText("Authenticated!");
+                        Snackbar.make(rootView, "Authenticated!", Snackbar.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onFailure(AuthenticationFailureReason failureReason, boolean fatal, CharSequence errorMessage, int moduleTag, int errorCode) {
-                        Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
+                        Snackbar.make(rootView, "Failed!", Snackbar.LENGTH_SHORT).show();
                     }
                 });
             } else {
                 textView.setText("Fingerprint not registered");
-                Toast.makeText(getApplicationContext(), "Fingerprint not registered!\nPlease go to settings to register fingerprint", Toast.LENGTH_LONG).show();
+                Snackbar.make(rootView, "No fingerprint is registered\nPress \"Go\" and click on \"Fingerprint\"", Snackbar.LENGTH_LONG)
+                        .setAction("Go", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                startActivity(new Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS));
+                            }
+                        })
+                        .show();
             }
         } else {
-            textView.setText("Fingerprint not supported");
-            Toast.makeText(getApplicationContext(), "Fingerprint not supported", Toast.LENGTH_LONG).show();
+            textView.setText("Fingerprint not supported!");
+            Snackbar.make(rootView, "Fingerprint not supported!", Snackbar.LENGTH_SHORT).show();
         }
     }
 }
