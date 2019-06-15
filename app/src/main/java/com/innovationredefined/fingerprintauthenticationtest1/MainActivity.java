@@ -55,7 +55,15 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(AuthenticationFailureReason failureReason, boolean fatal, CharSequence errorMessage, int moduleTag, int errorCode) {
-                        Snackbar.make(rootView, "Failed!", Snackbar.LENGTH_SHORT).show();
+                        if (failureReason.equals(AuthenticationFailureReason.AUTHENTICATION_FAILED))
+                            Snackbar.make(rootView, "Failed!", Snackbar.LENGTH_SHORT).show();
+                        else if (failureReason.equals(AuthenticationFailureReason.LOCKED_OUT)) {
+                            textView.setText("Too many wrong attempts!");
+                            Snackbar.make(rootView, "Too many wrong attempts!\nPlease restart authentication!", Snackbar.LENGTH_LONG).show();
+                        } else {
+                            textView.setText(failureReason.name());
+                            Snackbar.make(rootView, "Failed because: "+ failureReason.name(), Snackbar.LENGTH_LONG).show();
+                        }
                     }
                 });
             } else {
